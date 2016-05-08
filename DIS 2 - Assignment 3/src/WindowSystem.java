@@ -1,17 +1,14 @@
-import java.io.*;
 import java.util.*;
 import de.rwth.hci.Graphics.GraphicsEventSystem;
 import java.awt.Color;
-import java.awt.Font;
-import java.awt.Rectangle;
 
 public class WindowSystem extends GraphicsEventSystem
 {
 	int width;
 	int length;
-	Map <String, int[]> Lines; 
+	Map <String, int[]> Lines;				// Collection of Lines. 
 	int LineCount;
-	Map <String, SimpleWindow> SWMap;
+	TreeMap<Integer, SimpleWindow> SWMap;	// Collection of SimpleWindow.
 	boolean EnableWindowManager;
 	
 	public WindowSystem(int i, int j)
@@ -21,7 +18,7 @@ public class WindowSystem extends GraphicsEventSystem
 		length = j;
 		Lines = new HashMap<>();
 		LineCount = 0;
-		SWMap = new HashMap<>();
+		SWMap = new TreeMap<Integer, SimpleWindow>();
 		super.setBackground(Color.LIGHT_GRAY);
 		EnableWindowManager = false;
 	}
@@ -45,8 +42,8 @@ public class WindowSystem extends GraphicsEventSystem
 			super.drawLine(lineMember.getValue()[0], lineMember.getValue()[1], lineMember.getValue()[2], lineMember.getValue()[3]);
 		}
 			
-		// Draw all SimpleWindow in the list.
-		for(Map.Entry<String, SimpleWindow> member: SWMap.entrySet())
+		// Draw all SimpleWindow in the TreeMap.
+		for(Map.Entry<Integer, SimpleWindow> member: SWMap.entrySet())
 		{
 			// Draw SimpleWindow's window.
 			SimpleWindow newSW = member.getValue();
@@ -55,10 +52,12 @@ public class WindowSystem extends GraphicsEventSystem
 			super.setColor(newSW.MyColor);
 			super.fillRect(newSW.LeftUpperX, newSW.LeftUpperY, EndX, EndY);
 			
+			// If enabled, draw Window Manager
 			if (EnableWindowManager == true)
 			{
 				DrawWindowManager(newSW.myWMTab, newSW.MyColor);
 			}
+			
 			// Draw SimpleWindow border.
 			super.setColor(Color.black);
 			super.drawRect(newSW.LeftUpperX, newSW.LeftUpperY, EndX, EndY);
@@ -66,6 +65,9 @@ public class WindowSystem extends GraphicsEventSystem
 		}		
 	}	
 	
+	/*
+	 * Draw each SimpleWindow's window manager tab.
+	 */
 	private void DrawWindowManager(WindowManagerTab newWM, Color newColor)
 	{
 		// Draw the Window Manager. Stacked on the original Simple Window.
@@ -92,6 +94,9 @@ public class WindowSystem extends GraphicsEventSystem
 		super.drawLine(newWM.CloseOptionX, CBLeftBottomY, wmRightBottomX, newWM.LeftUpperY);				
 	}
 	
+	/*
+	 * Create Simple Window. it receive percentage of X and Y, width, height, color, and window name.
+	 */
 	public void CreateSimpleWindow(float reqX, float reqY, int reqWidth, int reqHeight, Color reqColor, String windowName)
 	{
 		// Calculate the real position of simple window in desktop.
@@ -100,13 +105,18 @@ public class WindowSystem extends GraphicsEventSystem
 		
 		// Create the Simple Window. 
 		SimpleWindow newSW = new SimpleWindow(realStartX, realStartY, reqWidth, reqHeight, reqColor);
-		// Count simple Window's ID based on Desktop's collection of Simple Window.
-		String mapKey = Integer.toString(SWMap.size() + 1);
-		newSW.SetID(mapKey);
-		SWMap.put(mapKey, newSW);		
 		
-		// Set Simple Window's Title.
-		newSW.SetWindowName(windowName);
+		// give new SimpleWindow ID based on WindowSystem's collection of Simple Window.
+		int newKey;
+		if (SWMap.size() == 0) 
+			{newKey = 1;}
+		else
+			{newKey = SWMap.lastKey() + 1;}
+		newSW.SetID(newKey);
+		SWMap.put(newKey, newSW);						// Add SimpleWindow to TreeMap.
+		
+		newSW.SetWindowName(windowName);				// Set SimpleWindow's Title.
+		newSW.SetMaximumPosition(width, length);		// Set SimpleWindow's Limit.
 	}
 	
 	
