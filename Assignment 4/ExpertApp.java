@@ -2,22 +2,27 @@ import java.awt.Color;
 
 public class ExpertApp {
 
-	private WindowSystem mainWS;
-	private SimpleWindow mySimpleWindow;
-	private RATLabel resultLabel;	
-	private Boolean isHitNumber;
-	private int tempResult;
-	private RATLabel infoLabel;
-	private String lastOperator;
+	private WindowSystem mainWS;				// The desktop.
+	private SimpleWindow mySimpleWindow;		// The window where calculator located.
+	private RATLabel resultLabel;				// label where result displayed.
+	private Boolean isHitNumber;				// indicate whether a number just been hit or not.
+	private double tempResult;					// result that will be displayed in resultLabel.
+	private RATLabel infoLabel;					// label to indicate what operator will be done.
+	private String lastOperator;				// save the last operator hit.
+	private Boolean isDouble;					// indicate whether a decimal is activated or not.
 	
 	private static int ButtonSize = 30;
 	
+	/*
+	 * Constructor. Create the desktop (Window System) and Set all variables to default value.
+	 */
 	public ExpertApp()
 	{
 		drawDesktop();
 		isHitNumber = true;
 		tempResult = 0;
 		lastOperator = "";
+		isDouble = false;
 	}
 	
 	public static void main(String[] args) 
@@ -27,11 +32,17 @@ public class ExpertApp {
 		calculator.drawAllButtons();
 	}
 	
+	/*
+	 * create and assign the Window System.
+	 */
 	private void drawDesktop()
 	{
 		mainWS = new WindowSystem(1024, 960);
 	}
 	
+	/*
+	 * Draw the calculator body and result label.
+	 */
 	private void drawCalculatorBody()
 	{
 		mainWS.CreateSimpleWindow(0.25f, 0.25f, 190, 275, "RATulator");
@@ -42,12 +53,18 @@ public class ExpertApp {
 		mySimpleWindow.AddComponent(resultLabel);
 	}
 	
+	/*
+	 * Draw all number buttons and operator buttons.
+	 */
 	private void drawAllButtons()
 	{		
 		drawNumbers();
 		drawOperator();		
 	}
 	
+	/*
+	 * Draw number buttons.
+	 */
 	private void drawNumbers()
 	{
 		// First Line
@@ -116,6 +133,9 @@ public class ExpertApp {
 		
 	}
 	
+	/*
+	 * Draw operator Buttons.
+	 */
 	private void drawOperator()
 	{
 		// Clear Button
@@ -149,7 +169,7 @@ public class ExpertApp {
 		// Minus Button
 		RATButton minusButton = new RATButton(140, 130, ButtonSize, ButtonSize, Color.orange);
 		minusButton.SetText("-", Color.black);
-		minusButton.ActionCommand = "Equal";
+		minusButton.ActionCommand = "Minus";
 		minusButton.AssignListener(new CalcClickListener());
 		mySimpleWindow.AddComponent(minusButton);
 		
@@ -173,6 +193,9 @@ public class ExpertApp {
 		mySimpleWindow.AddComponent(infoLabel);
 	}
 	
+	/*
+	 * Do mathematical process when an operator is hit.
+	 */
 	public void HitOperator(String input)
 	{
 		lastOperator = input;
@@ -182,25 +205,32 @@ public class ExpertApp {
 			case "Plus":
 				infoLabel.SetText("PLUS!!", Color.red);
 				isHitNumber = false;
-				tempResult += Integer.parseInt(resultLabel.TextLabel);
+				tempResult += Double.parseDouble(resultLabel.TextLabel);						
 				break;
 			
 			case "Minus":
 				infoLabel.SetText("Minus!!", Color.red);
 				isHitNumber = false;
-				tempResult -= Integer.parseInt(resultLabel.TextLabel);
+				if (tempResult != 0)
+				{					
+					tempResult = tempResult - Double.parseDouble(resultLabel.TextLabel);	
+				}
+				else
+				{
+					tempResult = Double.parseDouble(resultLabel.TextLabel);
+				}						
 				break;
 			
 			case "Multiply":
 				infoLabel.SetText("Multiply", Color.red);
 				isHitNumber = false;
 				if (tempResult != 0)
-				{
-					tempResult = tempResult * Integer.parseInt(resultLabel.TextLabel);	
+				{					
+					tempResult = tempResult * Double.parseDouble(resultLabel.TextLabel);	
 				}
 				else
 				{
-					tempResult = Integer.parseInt(resultLabel.TextLabel);
+					tempResult = Double.parseDouble(resultLabel.TextLabel);
 				}
 				break;
 			
@@ -209,32 +239,42 @@ public class ExpertApp {
 				isHitNumber = false;
 				if (tempResult != 0)
 				{					
-					tempResult = tempResult / Integer.parseInt(resultLabel.TextLabel);
+					tempResult = tempResult / Double.parseDouble(resultLabel.TextLabel);
 				}
 				else
 				{
-					tempResult = Integer.parseInt(resultLabel.TextLabel);
+					tempResult = Double.parseDouble(resultLabel.TextLabel);
 				}
 				break;
 		}
 	}
 	
+	/*
+	 * Append the current string with button value. 
+	 */
 	public void HitNumber(int input)
 	{
 		infoLabel.SetText("", Color.red);
+		
 		if(resultLabel.TextLabel == "0" || isHitNumber == false)
 		{
+			// If the current label is 0, or an operator just been hit, replace the current display.
 			resultLabel.SetText(Integer.toString(input), Color.black);
 		}
 		else
 		{
+			// other way, just append the string.
 			String newText = resultLabel.TextLabel + input;
 			resultLabel.SetText(newText, Color.black);
 		}
-		
+				
 		isHitNumber = true;
 	}
 	
+	/*
+	 * Just like swing, the event listener is implemented by the class that need to overwrite it.
+	 * The event listener will listen to the button that being hit.
+	 */
 	private class CalcClickListener implements RATMouseListener
 	{
 		public void mouseClicked(RATButton inputButton) 
@@ -287,16 +327,34 @@ public class ExpertApp {
 					resultLabel.SetText("0", Color.black);
 					tempResult = 0;
 					lastOperator = "";
+					isHitNumber = true;
+					isDouble = false;
 					break;
 					
 				case "Equal":
 					HitOperator(lastOperator);
 					infoLabel.SetText("", Color.red);
-					resultLabel.SetText(Integer.toString(tempResult), Color.black);
+					if(isDouble == true)
+					{
+						resultLabel.SetText(Double.toString(tempResult), Color.black);
+					}
+					else
+					{
+						resultLabel.SetText(Integer.toString((int)tempResult), Color.black);
+					}
 					lastOperator = "";
 					tempResult = 0;
 					break;
 					
+				case "Comma":
+					if (!resultLabel.TextLabel.contains("."))
+					{
+						resultLabel.TextLabel += ".";
+					}
+					isDouble = true;
+					isHitNumber = true;
+					break;							
+				
 				default:
 					HitOperator(command);
 					break;				

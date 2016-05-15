@@ -12,7 +12,7 @@ public class WindowSystem extends GraphicsEventSystem
 	int LineCount;
 	TreeMap<Integer, SimpleWindow> SWMap;	// Collection of SimpleWindow.
 	boolean EnableWindowManager;
-	WindowManager myWindowManager;
+	WindowManager myWindowManager;			// The window manager of Window System.
 	
 	public WindowSystem(int i, int j)
 	{
@@ -24,8 +24,7 @@ public class WindowSystem extends GraphicsEventSystem
 		SWMap = new TreeMap<Integer, SimpleWindow>();
 		super.setBackground(Color.DARK_GRAY);
 		EnableWindowManager = false;
-		
-		
+				
 		myWindowManager = new WindowManager(this);
 		if (myWindowManager != null)
 		{
@@ -45,9 +44,10 @@ public class WindowSystem extends GraphicsEventSystem
 			super.setColor(Color.LIGHT_GRAY);
 			super.fillRect(newSW.LeftUpperX, newSW.LeftUpperY, EndX, EndY);
 			
+			// Draw all widget in a simple window.
 			drawComponent(newSW.ComponentList);
 			
-			// If enabled, draw Window Manager
+			// If enabled, draw Window Manager.
 			if (EnableWindowManager == true)
 			{
 				DrawWindowManager(newSW.myTitleBar);
@@ -89,6 +89,9 @@ public class WindowSystem extends GraphicsEventSystem
 		super.drawLine(newTitleBar.CloseOptionX, CBLeftBottomY, wmRightBottomX, newTitleBar.LeftUpperY);				
 	}
 	
+	/*
+	 * Draw a collection of widget.
+	 */
 	private void drawComponent(List<RATWidget> componentList)
 	{
 		for(RATWidget wdg: componentList)
@@ -96,15 +99,18 @@ public class WindowSystem extends GraphicsEventSystem
 			Class<? extends RATWidget> c = wdg.getClass();
 			if (c.equals(RATLabel.class))
 			{
+				// Draw RATLabel.
 				drawLabel((RATLabel) wdg);
 			}
 			else if (c.equals(RATButton.class))
 			{
+				// Draw RATButton.
 				drawButton((RATButton) wdg);
 			}
 		}
 	}
 	
+	// Draw RATLabel.
 	private void drawLabel(RATLabel label)
 	{
 		// Draw the Rectangle
@@ -122,6 +128,7 @@ public class WindowSystem extends GraphicsEventSystem
 		super.drawString(label.TextLabel, FontX, FontY);		
 	}
 	
+	// Draw RATButton.
 	private void drawButton(RATButton button)
 	{
 		// Draw the Rectangle
@@ -138,6 +145,7 @@ public class WindowSystem extends GraphicsEventSystem
 		int FontY = button.yPosition + 15;
 		super.drawString(button.TextLabel, FontX, FontY);		
 	}
+	
 	/*
 	 * Create Simple Window. it receive percentage of X and Y, width, height,  and window name.
 	 */
@@ -167,6 +175,7 @@ public class WindowSystem extends GraphicsEventSystem
 		newSW.SetWindowName(windowName);				// Set SimpleWindow's Title.
 	}
 	
+	// Return a simpleWindow based on the window name.
 	public SimpleWindow GetSimpleWindow(String windowName)
 	{
 		for(Entry<Integer, SimpleWindow> entry:SWMap.entrySet())
@@ -180,6 +189,7 @@ public class WindowSystem extends GraphicsEventSystem
 		return null;
 	}
 	
+	// Check whether a mouse click happen inside a simpleWindow or not.
 	private void checkMouseClick(int x, int y)
 	{
 		for(int currKey = SWMap.lastKey(); currKey >= SWMap.firstKey(); currKey -= 1)
@@ -197,9 +207,8 @@ public class WindowSystem extends GraphicsEventSystem
 				{
 					if (y>= yMin && y <= yMax)
 					{
+						// If it is inside a simpleWindow, let simpleWindow handle the click.
 						targetWindow.DetectMouseClick(x, y);
-//						ControlledWindow = SWMap.get(currKey);
-//						IsClickWindowManager = true;			// Set flag to true.
 						return;									// Out of the loop.
 					}
 				}

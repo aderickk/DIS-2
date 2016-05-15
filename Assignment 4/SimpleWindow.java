@@ -3,15 +3,15 @@ import java.util.List;
 
 public class SimpleWindow 
 {
-	int ID;						// Simple Window's ID
+	int ID;							// Simple Window's ID
 	int width;
 	int length;
-	int LeftUpperX; 			//The X of uppermost and leftmost of the window
-	int LeftUpperY; 			//The Y of uppermost and leftmost of the window
+	int LeftUpperX; 				//The X of uppermost and leftmost of the window
+	int LeftUpperY;		 			//The Y of uppermost and leftmost of the window
 	
-	TitleBarTab myTitleBar; 	// Each Simple Window have their own WindowManagerTab.
+	TitleBarTab myTitleBar; 		// Each Simple Window have their own WindowManagerTab.
 	
-	List<RATWidget> ComponentList;
+	List<RATWidget> ComponentList;	// List of all widget a simple window contain. 
 	
 	
 	/*
@@ -49,7 +49,7 @@ public class SimpleWindow
 	/*
 	 * The function to Move window position. 
 	 * Input parameter is the difference between original position and new position.
-	 * Only move the window if the new position doesn't pass WindowSystem's width and length.
+	 * Move all the widget the simple window has as well.
 	 */
 	public void MoveWindow(int deltaX, int deltaY)
 	{
@@ -62,6 +62,9 @@ public class SimpleWindow
 		}
 	}	
 	
+	/*
+	 * Assign a widget to simple window.
+	 */
 	public void AddComponent(RATWidget newWidget)
 	{
 		newWidget.xPosition += LeftUpperX;
@@ -70,11 +73,16 @@ public class SimpleWindow
 		newWidget.parentWindow = this;
 	}
 	
+	/*
+	 * Determine if the click happen inside a button or not.
+	 */
 	public void DetectMouseClick(int x, int y)
 	{
 		for(RATWidget wdg: ComponentList)
 		{
 			Class<? extends RATWidget> c = wdg.getClass();
+			
+			// only do the check if the widget is a button.
 			if (c.equals(RATButton.class))
 			{
 				int xBegin = wdg.xPosition;
@@ -86,6 +94,8 @@ public class SimpleWindow
 				{
 					if(y >= yBegin && y <= yEnd)
 					{
+						// If it is a button, then do the button's mouseClicked, 
+						// which in turn will activate the mouse click listener.
 						RATButton btn = (RATButton)wdg;
 						btn.mouseClicked();						
 					}

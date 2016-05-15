@@ -2,11 +2,13 @@ import java.awt.Color;
 
 public class HelloWorldGraphical 
 {	
-	private WindowSystem mainWS;
-	private SimpleWindow mySimpleWindow;
-	private RATLabel resultLabel;
+	private WindowSystem mainWS;					// The desktop.
+	private SimpleWindow mySimpleWindow;			// Simple Window where all widget located.
+	private RATLabel resultLabel;					// the result label.
 	
-	
+	/*
+	 * Constructor. create and assign the WindowSystem.
+	 */
 	public HelloWorldGraphical()
 	{
 		drawDesktop();
@@ -18,11 +20,15 @@ public class HelloWorldGraphical
 		hwg.drawHelloWorldGraphical();
 	}
 	
+	// Assign Window System.
 	private void drawDesktop()
 	{
 		mainWS = new WindowSystem(1024, 960);
 	}
 	
+	/*
+	 * Draw all button needed for HelloWorldGraphical.
+	 */
 	private void drawHelloWorldGraphical()
 	{
 		mainWS.CreateSimpleWindow(0.25f, 0.25f, 300, 250, "Hello World Application");
@@ -63,6 +69,10 @@ public class HelloWorldGraphical
 		mySimpleWindow.AddComponent(resetButton);
 	}
 	
+	/* 
+	 * The event listener. The class is implemented by all class that need to overwrite it.
+	 * The listener listen to the button instead of the event though.
+	 */
 	private class ButtonClickListener implements RATMouseListener
 	{
 		public void mouseClicked(RATButton inputButton) 
